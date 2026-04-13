@@ -518,31 +518,30 @@ function shuffleArray(array) {
   return newArray;
 }
 
-// ✅ 修复1：正确计算理论最高分（每题取该路径最大分值）
-function calculateTrueMaxScores() {
-  const paths = Object.keys(pathDescriptions);
-  let maxScores = Object.fromEntries(paths.map(p => [p, 0]));
+// ✅ 终极正确：每题对每个路径，只取最大的那个分值相加
+function calculateRealMaxScores() {
+  const pathKeys = Object.keys(pathDescriptions);
+  const maxScores = Object.fromEntries(pathKeys.map(k => [k, 0]));
 
   originalQuestions.forEach(q => {
-    let pathMax = Object.fromEntries(paths.map(p => [p, 0]));
-
+    // 先算出这一题，每个路径最多能拿多少分
+    const questionMax = Object.fromEntries(pathKeys.map(k => [k, 0]));
     q.options.forEach(opt => {
-      Object.entries(opt.paths).forEach(([k, v]) => {
-        if (pathMax[k] !== undefined && v > pathMax[k]) {
-          pathMax[k] = v;
-        }
+      pathKeys.forEach(p => {
+        const v = opt.paths[p] ?? 0;
+        if (v > questionMax[p]) questionMax[p] = v;
       });
     });
-
-    paths.forEach(p => {
-      maxScores[p] += pathMax[p];
+    // 累加到全局最高分
+    pathKeys.forEach(p => {
+      maxScores[p] += questionMax[p];
     });
   });
 
   return maxScores;
 }
 
-const maxScores = calculateTrueMaxScores();
+const maxScores = calculateRealMaxScores();
 
 let userState = {
   mbti: { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 },
@@ -615,11 +614,8 @@ function recalculateAll() {
     if (ans === null) return;
     const opt = questions[qidx].options[ans];
     Object.entries(opt.mbti).forEach(([k, v]) => mbti[k] += v);
-    
     Object.entries(opt.paths).forEach(([k, v]) => {
-      if (paths.hasOwnProperty(k)) {
-        paths[k] += v;
-      }
+      if (paths[k] !== undefined) paths[k] += v;
     });
   });
 
@@ -655,7 +651,7 @@ document.getElementById("next-btn").onclick = () => {
   }
 };
 
-// ✅ 修复2 + 修复3：按百分比排序 + 永远不超过100% + 顺序正确
+// ✅ 最终修复：按百分比排序 + 永远 ≤100% + 顺序不乱
 function showResult() {
   showPage("result-page");
   const mbti =
@@ -664,34 +660,35 @@ function showResult() {
     (userState.mbti.T > userState.mbti.F ? "T" : "F") +
     (userState.mbti.J > userState.mbti.P ? "J" : "P");
 
-  // 计算百分比
-  const pathPercentList = Object.entries(userState.paths).map(([path, score]) => {
+  // 计算每个路径的契合百分比，并强制封顶 100%
+  const pathList = Object.entries(userState.paths).map(([path, score]) => {
     const max = maxScores[path] || 1;
-    let pct = (score / max) * 100;
-    if (pct > 100) pct = 100; // 封顶100%
-    return [path, score, pct];
+    let percent = (score / max) * 100;
+    if (percent > 100) percent = 100;
+    if (percent < 0) percent = 0;
+    return { path, score, percent };
   });
 
-  // ✅ 关键：按百分比排序，不是原始分
-  pathPercentList.sort((a, b) => b[2] - a[2]);
+  // 按契合度从高到低排序（保证 top1 > top2 > top3）
+  pathList.sort((a, b) => b.percent - a.percent);
 
-  const top3 = pathPercentList.slice(0, 3);
-  const [mainPath, mainScore, mainPct] = top3[0];
+  const top1 = pathList[0];
+  const top3 = pathList.slice(0, 3);
 
-  document.getElementById("main-path").textContent = mainPath;
-  document.getElementById("path-score").textContent = `途径契合度：${mainPct.toFixed(1)}%`;
-  document.getElementById("path-desc").textContent = pathDescriptions[mainPath];
+  document.getElementById("main-path").textContent = top1.path;
+  document.getElementById("path-score").textContent = `途径契合度：${top1.percent.toFixed(1)}%`;
+  document.getElementById("path-desc").textContent = pathDescriptions[top1.path];
   document.getElementById("result-mbti").textContent = mbti;
-  document.getElementById("path-img").src = `./images/${mainPath}.png`;
+  document.getElementById("path-img").src = `./images/${top1.path}.png`;
 
   const top3El = document.getElementById("top3-paths");
   top3El.innerHTML = "";
-  top3.forEach(([path, _, pct], idx) => {
+  top3.forEach((item, i) => {
     const div = document.createElement("div");
     div.className = "flex justify-between text-lg";
     div.innerHTML = `
-      <span>${idx+1}. ${path}</span>
-      <span class="text-green">${pct.toFixed(1)}%</span>
+      <span>${i + 1}. ${item.path}</span>
+      <span class="text-green">${item.percent.toFixed(1)}%</span>
     `;
     top3El.appendChild(div);
   });
