@@ -52,22 +52,25 @@
 <div id="particles" class="fixed top-0 left-0 w-full h-full z-0"></div>
 <div class="relative z-10">
 
-  <!-- 首页 -->
+  <!-- 首页（已按要求排版） -->
   <div id="home-page" class="flex justify-center items-center min-h-screen px-6">
-    <div class="max-w-xl w-full p-12 rounded-3xl bg-gray/40 backdrop-blur-xl border border-white/10 card-glow transition-all duration-700 hover:scale-[1.02]">
+    <div class="max-w-xl w-full p-8 md:p-12 rounded-3xl bg-gray/40 backdrop-blur-xl border border-white/10 card-glow transition-all duration-700 hover:scale-[1.02]">
       <div class="mb-6 text-center">
         <div class="inline-block px-4 py-1 rounded-full bg-purple/10 border border-purple/20 mb-6">
           <span class="text-sm text-purple">人格观测 · 灵魂解析</span>
         </div>
-        <h1 class="text-5xl font-bold text-gradient mb-8">《诡秘之主》途径测试</h1>
-        <p class="text-gray-400 mb-10">探索你的灵魂本质，解锁属于你的神性途径</p>
+        <!-- 标题分行：《诡秘之主》单独一行，途径测试单独一行 -->
+        <h1 class="text-4xl md:text-5xl font-bold text-gradient mb-2">《诡秘之主》</h1>
+        <h1 class="text-4xl md:text-5xl font-bold text-gradient mb-8">途径测试</h1>
+        <!-- 描述分行：两行分开 -->
+        <p class="text-gray-400 text-lg md:text-xl mb-2">探索你的灵魂本质</p>
+        <p class="text-gray-400 text-lg md:text-xl mb-10">解锁属于你的神性途径</p>
       </div>
       <button id="start-btn" class="w-full bg-purple hover:bg-purple/90 text-white px-8 py-4 rounded-2xl text-xl font-medium transition-all btn-glow">
         开始观测
       </button>
     </div>
   </div>
-
   <!-- 测试页 -->
   <div id="test-page" class="hidden px-6 py-20 max-w-3xl mx-auto">
     <div class="flex justify-between items-center mb-8">
