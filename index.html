@@ -1143,16 +1143,17 @@ function showResult() {
   document.getElementById("path-desc").textContent = pathDescriptions[top1.path] || '暂无描述';
   document.getElementById("path-img").src = `./images/${top1.path}.png`;
 
-  // ============== 灵魂三重契合：完整保留并正常显示前三 ==============
+  // ============== 仅修改这里：只显示前三名名称，隐藏契合度 ==============
   const top3El = document.getElementById("top3-paths");
   top3El.innerHTML = "";
   top3.forEach((item, i) => {
     const div = document.createElement("div");
     div.className = "text-lg";
+    // 只显示 序号+途径名称，删除了百分比部分
+    div.innerText = `${i + 1}. ${item.path}`;
     top3El.appendChild(div);
   });
 }
-
 document.getElementById("restart-btn").onclick = () => {
   showPage("home-page");
 };
