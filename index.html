@@ -512,21 +512,33 @@ function shuffleArray(array) {
   return newArray;
 }
 
+// ✅ 修复：每题只取该途径的最大分值
 function calculateMaxScores() {
-  let maxScores = {};
-  Object.keys(pathDescriptions).forEach(path => maxScores[path] = 0);
-  if(originalQuestions.length === 0) return maxScores;
+  let maxScores = Object.fromEntries(Object.keys(pathDescriptions).map(p => [p, 0]));
+
   originalQuestions.forEach(q => {
+    let qMax = {};
+    Object.keys(maxScores).forEach(k => qMax[k] = 0);
+
     q.options.forEach(opt => {
-      if (opt.paths) Object.entries(opt.paths).forEach(([k, v]) => maxScores[k] += v);
+      if (!opt.paths) return;
+      Object.entries(opt.paths).forEach(([k, v]) => {
+        if (v > qMax[k]) qMax[k] = v;
+      });
+    });
+
+    Object.entries(qMax).forEach(([k, v]) => {
+      maxScores[k] += v;
     });
   });
+
   return maxScores;
 }
+
 const maxScores = calculateMaxScores();
 
 let userState = {
-  mbti: {E:0,I:0,N:0,S:0,T:0,F:0,J:0,P:0},
+  mbti: { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 },
   paths: Object.fromEntries(Object.keys(pathDescriptions).map(p => [p, 0])),
   current: 0,
   answers: Array(originalQuestions.length).fill(null)
@@ -534,17 +546,17 @@ let userState = {
 
 tsParticles.load("particles", {
   particles: {
-    shape: {type:"circle"},
-    size: {value:1.8},
-    color: {value:["#7E5AFF","#00FFA3"]},
-    move: {enable:true,speed:0.8,random:true,straight:false},
-    number: {value:80},
-    opacity: {value:0.4}
+    shape: { type: "circle" },
+    size: { value: 2 },
+    color: { value: ["#6b46c1", "#00ff9d"] },
+    move: { enable: true, speed: 1, random: true },
+    number: { value: 70 },
+    opacity: { value: 0.5 }
   },
   interactivity: {
     events: {
-      onHover: {enable:true,mode:"grab"},
-      onClick: {enable:true,mode:"push"}
+      onHover: { enable: true, mode: "grab" },
+      onClick: { enable: true, mode: "push" }
     }
   }
 });
@@ -557,28 +569,26 @@ function showPage(id) {
 }
 
 function loadQuestion() {
-  if(questions.length === 0) {
-    document.getElementById("question-title").textContent = "请先在代码中填写题目数据";
-    return;
-  }
   const idx = userState.current;
+  if (!questions[idx]) return;
+
   const q = questions[idx];
   document.getElementById("question-title").textContent = q.title;
-  document.getElementById("progress").textContent = `进度：${idx+1}/25`;
+  document.getElementById("progress").textContent = `进度：${idx + 1}/25`;
   const optEl = document.getElementById("options");
   optEl.innerHTML = "";
 
   q.options.forEach((opt, i) => {
     const btn = document.createElement("button");
-    btn.className = "bg-gray/30 hover:bg-purple/20 p-5 rounded-xl text-left transition-all border border-white/5";
+    btn.className = "bg-purple/10 hover:bg-purple/30 p-4 rounded-xl text-left transition-all";
     if (userState.answers[idx] === i) {
-      btn.classList.add("bg-purple/40", "border-purple/40");
+      btn.classList.add("bg-purple/50");
     }
-    btn.innerHTML = `${String.fromCharCode(65+i)}. ${opt.text}`;
+    btn.innerHTML = `${String.fromCharCode(65 + i)}. ${opt.text}`;
     btn.onclick = () => {
       userState.answers[idx] = i;
       recalculateAll();
-      
+
       if (userState.current < questions.length - 1) {
         userState.current++;
         loadQuestion();
@@ -591,14 +601,16 @@ function loadQuestion() {
 }
 
 function recalculateAll() {
-  let mbti = {E:0,I:0,N:0,S:0,T:0,F:0,J:0,P:0};
+  let mbti = { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 };
   let paths = Object.fromEntries(Object.keys(pathDescriptions).map(p => [p, 0]));
+
   userState.answers.forEach((ans, qidx) => {
     if (ans === null) return;
     const opt = questions[qidx].options[ans];
     Object.entries(opt.mbti).forEach(([k, v]) => mbti[k] += v);
     Object.entries(opt.paths).forEach(([k, v]) => paths[k] += v);
   });
+
   userState.mbti = mbti;
   userState.paths = paths;
 }
@@ -606,7 +618,7 @@ function recalculateAll() {
 document.getElementById("start-btn").onclick = () => {
   questions = shuffleArray(originalQuestions);
   userState = {
-    mbti: {E:0,I:0,N:0,S:0,T:0,F:0,J:0,P:0},
+    mbti: { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 },
     paths: Object.fromEntries(Object.keys(pathDescriptions).map(p => [p, 0])),
     current: 0,
     answers: Array(originalQuestions.length).fill(null)
@@ -633,18 +645,20 @@ document.getElementById("next-btn").onclick = () => {
 
 function showResult() {
   showPage("result-page");
-  const mbti = (userState.mbti.E>userState.mbti.I?"E":"I") +
-              (userState.mbti.N>userState.mbti.S?"N":"S") +
-              (userState.mbti.T>userState.mbti.F?"T":"F") +
-              (userState.mbti.J>userState.mbti.P?"J":"P");
-  const [path, score] = Object.entries(userState.paths).sort((a,b)=>b[1]-a[1])[0];
-  const percent = ((score / (maxScores[path] || 1)) * 100).toFixed(1);
-  
+  const mbti =
+    (userState.mbti.E > userState.mbti.I ? "E" : "I") +
+    (userState.mbti.N > userState.mbti.S ? "N" : "S") +
+    (userState.mbti.T > userState.mbti.F ? "T" : "F") +
+    (userState.mbti.J > userState.mbti.P ? "J" : "P");
+
+  const [path, score] = Object.entries(userState.paths).sort((a, b) => b[1] - a[1])[0];
+  const total = maxScores[path] || 1;
+  const percent = ((score / total) * 100).toFixed(1);
+
   document.getElementById("main-path").textContent = path;
   document.getElementById("path-score").textContent = `途径契合度：${percent}%`;
   document.getElementById("path-desc").textContent = pathDescriptions[path];
   document.getElementById("result-mbti").textContent = mbti;
- 
   document.getElementById("path-img").src = `./images/${path}.png`;
 }
 
