@@ -977,25 +977,24 @@ function shuffleArray(array) {
   return newArray;
 }
 
-// ============== 修改1：删除自动计算满分，固定所有角色统一满分 ==============
-// 所有途径理论最高分完全一致，彻底解决不均！
+// ============== 核心修改：统一满分设为35 ==============
 const maxScores = {
-  操纵师: 30,
-  观众: 30,
-  空想家: 30,
-  愚者: 30,
-  无面人: 30,
-  暴君: 30,
-  黑皇帝: 30,
-  魔女: 30,
-  错误: 30,
-  旅行家: 30,
-  红祭司: 30,
-  海王: 30,
-  太阳: 30,
-  深渊: 30,
-  大地母神: 30,
-  平衡者: 30
+  操纵师: 35,
+  观众: 35,
+  空想家: 35,
+  愚者: 35,
+  无面人: 35,
+  暴君: 35,
+  黑皇帝: 35,
+  魔女: 35,
+  错误: 35,
+  旅行家: 35,
+  红祭司: 35,
+  海王: 35,
+  太阳: 35,
+  深渊: 35,
+  大地母神: 35,
+  平衡者: 35
 };
 
 let userState = {
@@ -1129,11 +1128,8 @@ function showResult() {
     const max = maxScores[path] || 1;
     let percent = (score / max) * 100;
     percent = Math.max(0, Math.min(100, percent));
-    
-    // ============== 修改2：加极轻微随机扰动，乱点完全平均 ==============
-    // 随机±1%，避免微小分差导致固定角色，让所有角色都能随机第一
-    percent += (Math.random() - 0.5) * 2;
-    
+    // 轻微随机扰动，保证乱点绝对平均，不固定热门角色
+    percent += (Math.random() - 0.5) * 1.5;
     return { path, percent };
   });
 
@@ -1141,17 +1137,20 @@ function showResult() {
   const top1 = pathList[0] || { path: '未知', percent: 0 };
   const top3 = pathList.slice(0, 3);
 
+  // 主途径（核心结果）
   document.getElementById("main-path").textContent = top1.path;
   document.getElementById("path-score").textContent = `途径契合度：${top1.percent.toFixed(1)}%`;
   document.getElementById("path-desc").textContent = pathDescriptions[top1.path] || '暂无描述';
   document.getElementById("path-img").src = `./images/${top1.path}.png`;
 
+  // ============== 灵魂三重契合：完整保留并正常显示前三 ==============
   const top3El = document.getElementById("top3-paths");
   top3El.innerHTML = "";
   top3.forEach((item, i) => {
     const div = document.createElement("div");
     div.className = "text-lg";
     div.innerText = `${i + 1}. ${item.path} (${item.percent.toFixed(1)}%)`;
+    top3El.appendChild(div);
   });
 }
 
