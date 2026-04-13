@@ -518,22 +518,31 @@ function shuffleArray(array) {
   return newArray;
 }
 
-// ✅ 修复1：使用【平均可达最大值】替代不可达理论极限
-function calculateAdjustedMaxScores() {
-  let maxScores = Object.fromEntries(Object.keys(pathDescriptions).map(p => [p, 0]));
+// ✅ 修复1：正确计算理论最高分（每题取该路径最大分值）
+function calculateTrueMaxScores() {
+  const paths = Object.keys(pathDescriptions);
+  let maxScores = Object.fromEntries(paths.map(p => [p, 0]));
+
   originalQuestions.forEach(q => {
+    let pathMax = Object.fromEntries(paths.map(p => [p, 0]));
+
     q.options.forEach(opt => {
       Object.entries(opt.paths).forEach(([k, v]) => {
-        if (maxScores.hasOwnProperty(k)) {
-          maxScores[k] += v / q.options.length;
+        if (pathMax[k] !== undefined && v > pathMax[k]) {
+          pathMax[k] = v;
         }
       });
     });
+
+    paths.forEach(p => {
+      maxScores[p] += pathMax[p];
+    });
   });
+
   return maxScores;
 }
 
-const maxScores = calculateAdjustedMaxScores();
+const maxScores = calculateTrueMaxScores();
 
 let userState = {
   mbti: { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 },
@@ -607,7 +616,6 @@ function recalculateAll() {
     const opt = questions[qidx].options[ans];
     Object.entries(opt.mbti).forEach(([k, v]) => mbti[k] += v);
     
-    // ✅ 修复2：路径字段过滤，防止脏数据（旅行:0）污染
     Object.entries(opt.paths).forEach(([k, v]) => {
       if (paths.hasOwnProperty(k)) {
         paths[k] += v;
@@ -647,7 +655,7 @@ document.getElementById("next-btn").onclick = () => {
   }
 };
 
-// ✅ 修复3：显示 TOP3 途径，不再只显示单一
+// ✅ 修复2 + 修复3：按百分比排序 + 永远不超过100% + 顺序正确
 function showResult() {
   showPage("result-page");
   const mbti =
@@ -656,29 +664,34 @@ function showResult() {
     (userState.mbti.T > userState.mbti.F ? "T" : "F") +
     (userState.mbti.J > userState.mbti.P ? "J" : "P");
 
-  const sorted = Object.entries(userState.paths).sort((a, b) => b[1] - a[1]);
-  const top3 = sorted.slice(0, 3);
-  const [mainPath, mainScore] = top3[0];
+  // 计算百分比
+  const pathPercentList = Object.entries(userState.paths).map(([path, score]) => {
+    const max = maxScores[path] || 1;
+    let pct = (score / max) * 100;
+    if (pct > 100) pct = 100; // 封顶100%
+    return [path, score, pct];
+  });
 
-  // 主途径
-  const total = maxScores[mainPath] || 1;
-  const percent = ((mainScore / total) * 100).toFixed(1);
+  // ✅ 关键：按百分比排序，不是原始分
+  pathPercentList.sort((a, b) => b[2] - a[2]);
+
+  const top3 = pathPercentList.slice(0, 3);
+  const [mainPath, mainScore, mainPct] = top3[0];
+
   document.getElementById("main-path").textContent = mainPath;
-  document.getElementById("path-score").textContent = `途径契合度：${percent}%`;
+  document.getElementById("path-score").textContent = `途径契合度：${mainPct.toFixed(1)}%`;
   document.getElementById("path-desc").textContent = pathDescriptions[mainPath];
   document.getElementById("result-mbti").textContent = mbti;
   document.getElementById("path-img").src = `./images/${mainPath}.png`;
 
-  // 展示 TOP3
   const top3El = document.getElementById("top3-paths");
   top3El.innerHTML = "";
-  top3.forEach(([path, score], idx) => {
-    const pct = ((score / maxScores[path]) * 100).toFixed(1);
+  top3.forEach(([path, _, pct], idx) => {
     const div = document.createElement("div");
     div.className = "flex justify-between text-lg";
     div.innerHTML = `
       <span>${idx+1}. ${path}</span>
-      <span class="text-green">${pct}%</span>
+      <span class="text-green">${pct.toFixed(1)}%</span>
     `;
     top3El.appendChild(div);
   });
