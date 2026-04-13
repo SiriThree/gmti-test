@@ -1149,7 +1149,6 @@ function showResult() {
   top3.forEach((item, i) => {
     const div = document.createElement("div");
     div.className = "text-lg";
-    div.innerText = `${i + 1}. ${item.path} (${item.percent.toFixed(1)}%)`;
     top3El.appendChild(div);
   });
 }
