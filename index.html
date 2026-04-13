@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Persona - 人格观测系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
@@ -13,14 +13,32 @@
           colors: {
             dark: '#080810',
             purple: '#7E5AFF',
+            'purple-deep': '#5B3FD8',
             blue: '#007bff',
             green: '#00FFA3',
+            'green-deep': '#00D88A',
             gray: '#18182B',
+            'gray-light': '#2A2A4A',
             accent: '#4F46E5'
           },
           fontFamily: {
             sans: ['Inter', 'system-ui', 'sans-serif'],
           },
+          animation: {
+            'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-8px)' }
+            }
+          }
         },
       }
     }
@@ -28,47 +46,89 @@
   <style type="text/tcss">
     @layer utilities {
       .text-gradient {
-        background: linear-gradient(to right, #7E5AFF, #00FFA3);
+        background: linear-gradient(135deg, #7E5AFF 0%, #00FFA3 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .text-gradient-sub {
+        background: linear-gradient(135deg, #A78BFA 0%, #6EE7B7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
       .card-glow {
-        box-shadow: 0 0 40px rgba(126, 90, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(126, 90, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
       }
       .btn-glow {
-        box-shadow: 0 0 20px rgba(126, 90, 255, 0.3);
+        box-shadow: 0 4px 20px rgba(126, 90, 255, 0.4), 0 0 0 0 rgba(126, 90, 255, 0.7);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      .bg-gradient {
-        background: linear-gradient(135deg, #0F0F1B, #121228);
+      .btn-glow:hover {
+        box-shadow: 0 6px 28px rgba(126, 90, 255, 0.5), 0 0 0 4px rgba(126, 90, 255, 0.15);
+        transform: translateY(-2px);
+      }
+      .btn-glow:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 12px rgba(126, 90, 255, 0.3);
+      }
+      .bg-gradient-card {
+        background: linear-gradient(145deg, rgba(24, 24, 43, 0.85), rgba(15, 15, 27, 0.95));
       }
       .border-gradient {
-        border-image: linear-gradient(to right, #7E5AFF, #00FFA3) 1;
+        border: 1px solid;
+        border-image: linear-gradient(135deg, rgba(126, 90, 255, 0.5), rgba(0, 255, 163, 0.3)) 1;
+      }
+      .badge-glow {
+        box-shadow: 0 0 12px rgba(126, 90, 255, 0.2);
       }
     }
   </style>
 </head>
 
 <body class="bg-dark text-white min-h-screen overflow-x-hidden font-sans relative">
+<!-- 粒子背景优化：更细腻、更有层次感 -->
 <div id="particles" class="fixed top-0 left-0 w-full h-full z-0"></div>
 <div class="relative z-10">
 
-  <!-- 首页（已按要求排版） -->
-  <div id="home-page" class="flex justify-center items-center min-h-screen px-6">
-    <div class="max-w-xl w-full p-8 md:p-12 rounded-3xl bg-gray/40 backdrop-blur-xl border border-white/10 card-glow transition-all duration-700 hover:scale-[1.02]">
-      <div class="mb-6 text-center">
-        <div class="inline-block px-4 py-1 rounded-full bg-purple/10 border border-purple/20 mb-6">
-          <span class="text-sm text-purple">人格观测 · 灵魂解析</span>
+  <!-- 首页：大厂级UI优化版 -->
+  <div id="home-page" class="flex justify-center items-center min-h-screen px-4 sm:px-6 py-8">
+    <div class="max-w-lg w-full bg-gradient-card rounded-3xl border border-white/10 card-glow p-6 sm:p-8 md:p-12 animate-fade-in-up">
+      <!-- 顶部标签：更精致的徽章 -->
+      <div class="text-center mb-6 sm:mb-8">
+        <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-purple/10 border border-purple/30 badge-glow mb-6 sm:mb-8">
+          <span class="w-1.5 h-1.5 rounded-full bg-green mr-2 animate-pulse-slow"></span>
+          <span class="text-sm font-medium text-purple">人格观测 · 灵魂解析</span>
         </div>
-        <!-- 标题分行：《诡秘之主》单独一行，途径测试单独一行 -->
-        <h1 class="text-4xl md:text-5xl font-bold text-gradient mb-2">《诡秘之主》</h1>
-        <h1 class="text-4xl md:text-5xl font-bold text-gradient mb-8">途径测试</h1>
-        <!-- 描述分行：两行分开 -->
-        <p class="text-gray-400 text-lg md:text-xl mb-2">探索你的灵魂本质</p>
-        <p class="text-gray-400 text-lg md:text-xl mb-10">解锁属于你的神性途径</p>
+
+        <!-- 标题：分层级、分行、极致排版 -->
+        <h1 class="text-[clamp(2.5rem,8vw,3.5rem)] font-bold text-gradient leading-tight mb-2">
+          《诡秘之主》
+        </h1>
+        <h1 class="text-[clamp(2.2rem,7vw,3.2rem)] font-bold text-gradient leading-tight mb-6 sm:mb-8">
+          途径测试
+        </h1>
+
+        <!-- 副标题：分行、渐变、呼吸感 -->
+        <p class="text-[clamp(1rem,3vw,1.25rem)] text-gray-300 text-gradient-sub leading-relaxed mb-2">
+          探索你的灵魂本质
+        </p>
+        <p class="text-[clamp(1rem,3vw,1.25rem)] text-gray-300 text-gradient-sub leading-relaxed mb-8 sm:mb-10">
+          解锁属于你的神性途径
+        </p>
       </div>
-      <button id="start-btn" class="w-full bg-purple hover:bg-purple/90 text-white px-8 py-4 rounded-2xl text-xl font-medium transition-all btn-glow">
+
+      <!-- 按钮：大厂级交互、动效、反馈 -->
+      <button id="start-btn" class="w-full bg-purple hover:bg-purple-deep text-white px-6 sm:px-8 py-4 sm:py-5 rounded-2xl text-[clamp(1.1rem,3vw,1.25rem)] font-semibold transition-all btn-glow animate-float">
         开始观测
       </button>
+
+      <!-- 底部小字：增加信任感、质感 -->
+      <div class="mt-6 sm:mt-8 text-center">
+        <p class="text-xs text-gray-500">基于《诡秘之主》世界观 · 22条神性途径精准匹配</p>
+      </div>
     </div>
   </div>
   <!-- 测试页 -->
