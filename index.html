@@ -475,6 +475,19 @@ const pathDescriptions = {
   平衡者: "你是天地秩序的支点，是万物运行的平衡者。你不偏不倚，不急不躁，不左不右，始终站在最稳定、最清醒的位置。\n\n你能在极端找到中和，在动荡保持安稳，在混乱守住秩序。你沉稳、冷静、理智，拥有最强大内心定力。\n\n你不被情绪带偏，不被极端诱惑，不被混乱影响。你是团队支柱，是关系纽带，是世界最稳固基石。世间万物，因平衡而长久；宇宙运行，因平衡而永恒。而你，便是平衡本身。"
 };
 
+// 保存原始题目，用于重置
+const originalQuestions = [...questions];
+
+// 随机打乱数组
+function shuffleArray(array) {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
 function calculateMaxScores() {
   let maxScores = {};
   Object.keys(pathDescriptions).forEach(path => maxScores[path] = 0);
@@ -551,6 +564,9 @@ function recalculateAll() {
 }
 
 document.getElementById("start-btn").onclick = () => {
+  // 每次开始都随机打乱题目
+  questions = shuffleArray(questions);
+  userState.answers = Array(questions.length).fill(null);
   showPage("test-page");
   loadQuestion();
 };
@@ -592,8 +608,10 @@ document.getElementById("restart-btn").onclick = () => {
     mbti: {E:0,I:0,N:0,S:0,T:0,F:0,J:0,P:0},
     paths: Object.fromEntries(Object.keys(pathDescriptions).map(p=>[p,0])),
     current:0,
-    answers: Array(questions.length).fill(null)
+    answers: Array(originalQuestions.length).fill(null)
   };
+  // 重置题目为原始顺序
+  questions = [...originalQuestions];
   showPage("home-page");
 };
 </script>
