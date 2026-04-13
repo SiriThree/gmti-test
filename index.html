@@ -71,7 +71,7 @@
   <!-- 测试页 -->
   <div id="test-page" class="hidden px-6 py-20 max-w-3xl mx-auto">
     <div class="flex justify-between items-center mb-8">
-      <span id="progress" class="text-green font-medium">进度：0/25</span>
+      <span id="progress" class="text-green font-medium">进度：0/20</span>
       <div class="flex gap-3">
         <button id="prev-btn" class="px-5 py-2 rounded-xl bg-gray/50 hover:bg-gray/80 border border-white/5 transition-all">上一题</button>
         <button id="next-btn" class="px-5 py-2 rounded-xl bg-gray/50 hover:bg-gray/80 border border-white/5 transition-all">下一题</button>
@@ -99,6 +99,12 @@
         </div>
         <div class="text-5xl font-bold text-gradient mb-4" id="main-path">——</div>
         <div class="text-xl text-gray-300" id="path-score">途径契合度：——</div>
+      </div>
+
+      <!-- 新增：TOP3 途径展示 -->
+      <div class="mb-10 p-6 rounded-2xl bg-purple/10 border border-purple/20 text-left">
+        <h3 class="text-green text-lg mb-4 font-medium">你的灵魂三重契合</h3>
+        <div id="top3-paths" class="space-y-3"></div>
       </div>
 
       <div class="bg-white/5 p-8 rounded-2xl mb-10 text-left">
@@ -207,7 +213,7 @@ const originalQuestions = [
     }},
     {text:"陷入短暂烦躁，但会强迫自己冷静处理",mbti:{E:0,I:0,N:0,S:0,T:1,F:1,J:0,P:0},paths:{
       愚者:0,观众:1,空想家:1,操纵师:2,无面人:1,暴君:1,黑皇帝:2,魔女:0,
-      错误:0,旅行:0,红祭司:1,海王:1,太阳:2,深渊:0,大地母神:1,平衡者:1
+      错误:0,旅行家:0,红祭司:1,海王:1,太阳:2,深渊:0,大地母神:1,平衡者:1
     }}
   ]},
   {title:"当你看到现实中的剧情，和你脑补的完全不一样，你会？",options:[
@@ -325,7 +331,7 @@ const originalQuestions = [
     }},
     {text:"淡定判断来源，绝不表现出异样",mbti:{E:0,I:1,N:0,S:0,T:1,F:0,J:0,P:0},paths:{
       愚者:0,观众:3,空想家:0,操纵师:1,无面人:2,暴君:1,黑皇帝:1,魔女:0,
-      错误:0,旅行:0,红祭司:0,海王:1,太阳:0,深渊:1,大地母神:0,平衡者:1
+      错误:0,旅行家:0,红祭司:0,海王:1,太阳:0,深渊:1,大地母神:0,平衡者:1
     }},
     {text:"偷偷拍照发群，让兄弟们一起品鉴",mbti:{E:1,I:0,N:0,S:0,T:0,F:1,J:0,P:1},paths:{
       愚者:1,观众:0,空想家:1,操纵师:0,无面人:0,暴君:1,黑皇帝:0,魔女:3,
@@ -512,24 +518,22 @@ function shuffleArray(array) {
   return newArray;
 }
 
-// 公平版：所有途径满分完全一致，概率均等
-function calculateMaxScores() {
+// ✅ 修复1：使用【平均可达最大值】替代不可达理论极限
+function calculateAdjustedMaxScores() {
   let maxScores = Object.fromEntries(Object.keys(pathDescriptions).map(p => [p, 0]));
   originalQuestions.forEach(q => {
-    let qMax = {};
-    Object.keys(maxScores).forEach(k => qMax[k] = 0);
     q.options.forEach(opt => {
-      if (!opt.paths) return;
       Object.entries(opt.paths).forEach(([k, v]) => {
-        if (v > qMax[k]) qMax[k] = v;
+        if (maxScores.hasOwnProperty(k)) {
+          maxScores[k] += v / q.options.length;
+        }
       });
     });
-    Object.entries(qMax).forEach(([k, v]) => { maxScores[k] += v; });
   });
   return maxScores;
 }
 
-const maxScores = calculateMaxScores();
+const maxScores = calculateAdjustedMaxScores();
 
 let userState = {
   mbti: { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 },
@@ -568,7 +572,7 @@ function loadQuestion() {
 
   const q = questions[idx];
   document.getElementById("question-title").textContent = q.title;
-  document.getElementById("progress").textContent = `进度：${idx + 1}/25`;
+  document.getElementById("progress").textContent = `进度：${idx + 1}/20`;
   const optEl = document.getElementById("options");
   optEl.innerHTML = "";
 
@@ -602,7 +606,13 @@ function recalculateAll() {
     if (ans === null) return;
     const opt = questions[qidx].options[ans];
     Object.entries(opt.mbti).forEach(([k, v]) => mbti[k] += v);
-    Object.entries(opt.paths).forEach(([k, v]) => paths[k] += v);
+    
+    // ✅ 修复2：路径字段过滤，防止脏数据（旅行:0）污染
+    Object.entries(opt.paths).forEach(([k, v]) => {
+      if (paths.hasOwnProperty(k)) {
+        paths[k] += v;
+      }
+    });
   });
 
   userState.mbti = mbti;
@@ -637,6 +647,7 @@ document.getElementById("next-btn").onclick = () => {
   }
 };
 
+// ✅ 修复3：显示 TOP3 途径，不再只显示单一
 function showResult() {
   showPage("result-page");
   const mbti =
@@ -645,15 +656,32 @@ function showResult() {
     (userState.mbti.T > userState.mbti.F ? "T" : "F") +
     (userState.mbti.J > userState.mbti.P ? "J" : "P");
 
-  const [path, score] = Object.entries(userState.paths).sort((a, b) => b[1] - a[1])[0];
-  const total = maxScores[path] || 1;
-  const percent = ((score / total) * 100).toFixed(1);
+  const sorted = Object.entries(userState.paths).sort((a, b) => b[1] - a[1]);
+  const top3 = sorted.slice(0, 3);
+  const [mainPath, mainScore] = top3[0];
 
-  document.getElementById("main-path").textContent = path;
+  // 主途径
+  const total = maxScores[mainPath] || 1;
+  const percent = ((mainScore / total) * 100).toFixed(1);
+  document.getElementById("main-path").textContent = mainPath;
   document.getElementById("path-score").textContent = `途径契合度：${percent}%`;
-  document.getElementById("path-desc").textContent = pathDescriptions[path];
+  document.getElementById("path-desc").textContent = pathDescriptions[mainPath];
   document.getElementById("result-mbti").textContent = mbti;
-  document.getElementById("path-img").src = `./images/${path}.png`;
+  document.getElementById("path-img").src = `./images/${mainPath}.png`;
+
+  // 展示 TOP3
+  const top3El = document.getElementById("top3-paths");
+  top3El.innerHTML = "";
+  top3.forEach(([path, score], idx) => {
+    const pct = ((score / maxScores[path]) * 100).toFixed(1);
+    const div = document.createElement("div");
+    div.className = "flex justify-between text-lg";
+    div.innerHTML = `
+      <span>${idx+1}. ${path}</span>
+      <span class="text-green">${pct}%</span>
+    `;
+    top3El.appendChild(div);
+  });
 }
 
 document.getElementById("restart-btn").onclick = () => {
