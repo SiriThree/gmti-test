@@ -11,82 +11,108 @@
       theme: {
         extend: {
           colors: {
-            dark: '#0a0a12',
-            purple: '#6b46c1',
+            dark: '#080810',
+            purple: '#7E5AFF',
             blue: '#007bff',
-            green: '#00ff9d',
-            gray: '#1e1e2f',
+            green: '#00FFA3',
+            gray: '#18182B',
+            accent: '#4F46E5'
           },
           fontFamily: {
-            serif: ['Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
           },
         },
       }
     }
   </script>
-  <style type="text/tailwindcss">
+  <style type="text/tcss">
     @layer utilities {
-      .text-shadow { text-shadow: 0 0 10px rgba(107,70,193,0.6); }
-      .card-float { animation: float 6s ease-in-out infinite; }
-      .breath { animation: breath 4s ease-in-out infinite; }
-      .glow { box-shadow: 0 0 15px rgba(107,70,193,0.4); }
-      .divine-text {
-        background: linear-gradient(to right, #6b46c1, #00ff9d);
+      .text-gradient {
+        background: linear-gradient(to right, #7E5AFF, #00FFA3);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
+      .card-glow {
+        box-shadow: 0 0 40px rgba(126, 90, 255, 0.15);
+      }
+      .btn-glow {
+        box-shadow: 0 0 20px rgba(126, 90, 255, 0.3);
+      }
+      .bg-gradient {
+        background: linear-gradient(135deg, #0F0F1B, #121228);
+      }
+      .border-gradient {
+        border-image: linear-gradient(to right, #7E5AFF, #00FFA3) 1;
+      }
     }
-    @keyframes float { 0%,100%{transform:translateY(0px)}50%{transform:translateY(-8px)} }
-    @keyframes breath { 0%,100%{opacity:.9;transform:scale(1)}50%{opacity:1;transform:scale(1.02)} }
   </style>
 </head>
 
-<body class="bg-dark text-white min-h-screen overflow-x-hidden font-serif relative">
+<body class="bg-dark text-white min-h-screen overflow-x-hidden font-sans relative">
 <div id="particles" class="fixed top-0 left-0 w-full h-full z-0"></div>
 <div class="relative z-10">
 
   <!-- 首页 -->
-  <div id="home-page" class="flex justify-center items-center min-h-screen px-4">
-    <div class="card-float max-w-xl text-center p-10 rounded-2xl bg-gray/60 backdrop-blur-md glow">
-      <h1 class="text-4xl font-bold text-purple text-shadow mb-8 breath">《诡秘之主》途径测试</h1>
-      <button id="start-btn" class="bg-purple hover:bg-purple/80 text-white px-8 py-3 rounded-xl text-xl transition-all">开始观测</button>
+  <div id="home-page" class="flex justify-center items-center min-h-screen px-6">
+    <div class="max-w-xl w-full p-12 rounded-3xl bg-gray/40 backdrop-blur-xl border border-white/10 card-glow transition-all duration-700 hover:scale-[1.02]">
+      <div class="mb-6 text-center">
+        <div class="inline-block px-4 py-1 rounded-full bg-purple/10 border border-purple/20 mb-6">
+          <span class="text-sm text-purple">人格观测 · 灵魂解析</span>
+        </div>
+        <h1 class="text-5xl font-bold text-gradient mb-8">《诡秘之主》途径测试</h1>
+        <p class="text-gray-400 mb-10">探索你的灵魂本质，解锁属于你的神性途径</p>
+      </div>
+      <button id="start-btn" class="w-full bg-purple hover:bg-purple/90 text-white px-8 py-4 rounded-2xl text-xl font-medium transition-all btn-glow">
+        开始观测
+      </button>
     </div>
   </div>
 
   <!-- 测试页 -->
-  <div id="test-page" class="hidden px-4 py-16 max-w-3xl mx-auto">
-    <div class="flex justify-between mb-4">
-      <span id="progress" class="text-green">进度：0/25</span>
-      <div class="flex gap-2">
-        <button id="prev-btn" class="bg-purple/20 hover:bg-purple/40 px-4 py-1 rounded">上一题</button>
-        <button id="next-btn" class="bg-purple/20 hover:bg-purple/40 px-4 py-1 rounded">下一题</button>
+  <div id="test-page" class="hidden px-6 py-20 max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <span id="progress" class="text-green font-medium">进度：0/25</span>
+      <div class="flex gap-3">
+        <button id="prev-btn" class="px-5 py-2 rounded-xl bg-gray/50 hover:bg-gray/80 border border-white/5 transition-all">上一题</button>
+        <button id="next-btn" class="px-5 py-2 rounded-xl bg-gray/50 hover:bg-gray/80 border border-white/5 transition-all">下一题</button>
       </div>
     </div>
-    <div class="card-float bg-gray/60 backdrop-blur-md rounded-xl p-8 glow">
-      <h3 id="question-title" class="text-xl text-center mb-6">加载中...</h3>
-      <div id="options" class="grid gap-4"></div>
+
+    <div class="bg-gray/40 backdrop-blur-xl rounded-3xl p-10 border border-white/10 card-glow">
+      <h3 id="question-title" class="text-2xl font-semibold mb-10 text-center">加载中...</h3>
+      <div id="options" class="grid gap-5"></div>
     </div>
   </div>
 
   <!-- 结果页 -->
-  <div id="result-page" class="hidden px-4 py-10 max-w-4xl mx-auto">
-    <div class="bg-gray/60 backdrop-blur-md rounded-xl p-10 glow card-float text-center">
-      <h2 class="text-3xl text-purple text-shadow mb-6">观测完成 · 你的神性途径</h2>
-      <div class="mb-8">
-        <div id="path-image" class="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-purple/50">
+  <div id="result-page" class="hidden px-6 py-16 max-w-4xl mx-auto">
+    <div class="bg-gray/40 backdrop-blur-xl rounded-3xl p-12 border border-white/10 card-glow text-center">
+      <div class="inline-block px-4 py-1 rounded-full bg-green/10 border border-green/20 mb-6">
+        <span class="text-sm text-green">观测完成</span>
+      </div>
+
+      <h2 class="text-4xl font-bold text-gradient mb-8">你的神性途径</h2>
+
+      <div class="mb-10">
+        <div id="path-image" class="w-36 h-36 mx-auto mb-6 rounded-full overflow-hidden border-4 border-purple/30 bg-gray/60">
           <img src="" id="path-img" class="w-full h-full object-cover">
         </div>
-        <div class="text-4xl font-bold divine-text mb-4" id="main-path">——</div>
-        <div class="text-lg text-gray-300" id="path-score">途径契合度：——</div>
+        <div class="text-5xl font-bold text-gradient mb-4" id="main-path">——</div>
+        <div class="text-xl text-gray-300" id="path-score">途径契合度：——</div>
       </div>
-      <div class="bg-purple/10 p-6 rounded-xl mb-8 text-left">
-        <p id="path-desc" class="text-gray-100 text-lg italic" style="white-space: pre-line;">正在解析灵魂本源...</p>
+
+      <div class="bg-white/5 p-8 rounded-2xl mb-10 text-left">
+        <p id="path-desc" class="text-gray-200 text-lg leading-relaxed" style="white-space: pre-line;">正在解析灵魂本源...</p>
       </div>
-      <div class="mb-8">
-        <h3 class="text-green text-lg mb-2">你的基础人格印记</h3>
-        <p id="result-mbti" class="text-xl font-bold divine-text"></p>
+
+      <div class="mb-10 p-6 rounded-2xl bg-purple/10 border border-purple/20">
+        <h3 class="text-green text-lg mb-2 font-medium">你的基础人格印记</h3>
+        <p id="result-mbti" class="text-3xl font-bold text-gradient"></p>
       </div>
-      <button id="restart-btn" class="bg-purple hover:bg-purple/80 text-white px-8 py-3 rounded-xl transition-all">重新观测</button>
+
+      <button id="restart-btn" class="px-10 py-4 bg-purple hover:bg-purple/90 text-white rounded-2xl text-lg font-medium transition-all btn-glow">
+        重新观测
+      </button>
     </div>
   </div>
 
@@ -475,10 +501,8 @@ const pathDescriptions = {
   平衡者: "你是天地秩序的支点，是万物运行的平衡者。你不偏不倚，不急不躁，不左不右，始终站在最稳定、最清醒的位置。\n\n你能在极端找到中和，在动荡保持安稳，在混乱守住秩序。你沉稳、冷静、理智，拥有最强大内心定力。\n\n你不被情绪带偏，不被极端诱惑，不被混乱影响。你是团队支柱，是关系纽带，是世界最稳固基石。世间万物，因平衡而长久；宇宙运行，因平衡而永恒。而你，便是平衡本身。"
 };
 
-// 用 let 定义当前题目数组（支持重新赋值）
 let questions = [...originalQuestions];
 
-// 随机打乱数组
 function shuffleArray(array) {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -491,6 +515,7 @@ function shuffleArray(array) {
 function calculateMaxScores() {
   let maxScores = {};
   Object.keys(pathDescriptions).forEach(path => maxScores[path] = 0);
+  if(originalQuestions.length === 0) return maxScores;
   originalQuestions.forEach(q => {
     q.options.forEach(opt => {
       if (opt.paths) Object.entries(opt.paths).forEach(([k, v]) => maxScores[k] += v);
@@ -508,8 +533,20 @@ let userState = {
 };
 
 tsParticles.load("particles", {
-  particles: { shape: {type:"circle"}, size: {value:2}, color: {value:["#6b46c1","#00ff9d"]}, move: {enable:true,speed:1,random:true}, number: {value:70}, opacity: {value:0.5} },
-  interactivity: { events: { onHover: {enable:true,mode:"grab"}, onClick: {enable:true,mode:"push"} } }
+  particles: {
+    shape: {type:"circle"},
+    size: {value:1.8},
+    color: {value:["#7E5AFF","#00FFA3"]},
+    move: {enable:true,speed:0.8,random:true,straight:false},
+    number: {value:80},
+    opacity: {value:0.4}
+  },
+  interactivity: {
+    events: {
+      onHover: {enable:true,mode:"grab"},
+      onClick: {enable:true,mode:"push"}
+    }
+  }
 });
 
 function showPage(id) {
@@ -520,6 +557,10 @@ function showPage(id) {
 }
 
 function loadQuestion() {
+  if(questions.length === 0) {
+    document.getElementById("question-title").textContent = "请先在代码中填写题目数据";
+    return;
+  }
   const idx = userState.current;
   const q = questions[idx];
   document.getElementById("question-title").textContent = q.title;
@@ -529,9 +570,9 @@ function loadQuestion() {
 
   q.options.forEach((opt, i) => {
     const btn = document.createElement("button");
-    btn.className = "bg-purple/10 hover:bg-purple/30 p-4 rounded-xl text-left transition-all";
+    btn.className = "bg-gray/30 hover:bg-purple/20 p-5 rounded-xl text-left transition-all border border-white/5";
     if (userState.answers[idx] === i) {
-      btn.classList.add("bg-purple/50");
+      btn.classList.add("bg-purple/40", "border-purple/40");
     }
     btn.innerHTML = `${String.fromCharCode(65+i)}. ${opt.text}`;
     btn.onclick = () => {
@@ -563,7 +604,6 @@ function recalculateAll() {
 }
 
 document.getElementById("start-btn").onclick = () => {
-  // 修复：用 let 赋值，正常打乱
   questions = shuffleArray(originalQuestions);
   userState = {
     mbti: {E:0,I:0,N:0,S:0,T:0,F:0,J:0,P:0},
@@ -598,7 +638,7 @@ function showResult() {
               (userState.mbti.T>userState.mbti.F?"T":"F") +
               (userState.mbti.J>userState.mbti.P?"J":"P");
   const [path, score] = Object.entries(userState.paths).sort((a,b)=>b[1]-a[1])[0];
-  const percent = ((score / maxScores[path]) * 100).toFixed(1);
+  const percent = ((score / (maxScores[path] || 1)) * 100).toFixed(1);
   
   document.getElementById("main-path").textContent = path;
   document.getElementById("path-score").textContent = `途径契合度：${percent}%`;
@@ -608,7 +648,6 @@ function showResult() {
   document.getElementById("path-img").src = `./images/${path}.png`;
 }
 
-// ✅ 修复：补全重启按钮代码
 document.getElementById("restart-btn").onclick = () => {
   showPage("home-page");
 };
