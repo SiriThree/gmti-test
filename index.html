@@ -999,7 +999,7 @@ function calculateRealMaxScores() {
 
 const maxScores = calculateRealMaxScores();
 
-// 移除MBTI相关属性
+
 let userState = {
   paths: Object.fromEntries(Object.keys(pathDescriptions).map(p => [p, 0])),
   current: 0,
@@ -1084,7 +1084,7 @@ function loadQuestion() {
   });
 }
 
-// 移除MBTI计算逻辑
+
 function recalculateAll() {
   let paths = Object.fromEntries(Object.keys(pathDescriptions).map(p => [p, 0]));
 
@@ -1126,9 +1126,7 @@ document.getElementById("next-btn").onclick = () => {
   }
 };
 
-// 移除MBTI显示逻辑
 function showResult() {
-   console.log('各途径理论满分', maxScores);
   showPage("result-page");
   const pathList = Object.entries(userState.paths).map(([path, score]) => {
     const max = maxScores[path] || 1;
