@@ -147,44 +147,43 @@
     </div>
   </div>
 
-  <!-- 结果页 -->
-  <div id="result-page" class="hidden px-6 py-16 max-w-4xl mx-auto">
-    <div class="bg-gray/40 backdrop-blur-xl rounded-3xl p-12 border border-white/10 card-glow text-center">
-      <div class="inline-block px-4 py-1 rounded-full bg-green/10 border border-green/20 mb-6">
-        <span class="text-sm text-green">观测完成</span>
-      </div>
-
-      <h2 class="text-4xl font-bold text-gradient mb-8">你的神性途径</h2>
-
-      <div class="mb-10">
-        <div id="path-image" class="w-36 h-36 mx-auto mb-6 rounded-full overflow-hidden border-4 border-purple/30 bg-gray/60">
-          <img src="" id="path-img" class="w-full h-full object-cover">
-        </div>
-        <div class="text-5xl font-bold text-gradient mb-4" id="main-path">——</div>
-        <div class="text-xl text-gray-300" id="path-score">途径契合度：——</div>
-      </div>
-
-      <!-- 新增：TOP3 途径展示 -->
-      <div class="mb-10 p-6 rounded-2xl bg-purple/10 border border-purple/20 text-left">
-        <h3 class="text-green text-lg mb-4 font-medium">你的灵魂三重契合</h3>
-        <div id="top3-paths" class="space-y-3"></div>
-      </div>
-
-      <div class="bg-white/5 p-8 rounded-2xl mb-10 text-left">
-        <p id="path-desc" class="text-gray-200 text-lg leading-relaxed" style="white-space: pre-line;">正在解析灵魂本源...</p>
-      </div>
-
-      <div class="mb-10 p-6 rounded-2xl bg-purple/10 border border-purple/20">
-        <h3 class="text-green text-lg mb-2 font-medium">你的基础人格印记</h3>
-        <p id="result-mbti" class="text-3xl font-bold text-gradient"></p>
-      </div>
-
-      <button id="restart-btn" class="px-10 py-4 bg-purple hover:bg-purple/90 text-white rounded-2xl text-lg font-medium transition-all btn-glow">
-        重新观测
-      </button>
+<!-- 结果页【已优化：更宽、更舒展、一行字更多、不拥挤】 -->
+<div id="result-page" class="hidden px-4 sm:px-6 py-16 max-w-5xl mx-auto w-full">
+  <div class="bg-gray/40 backdrop-blur-xl rounded-3xl p-6 sm:p-8 md:p-10 border border-white/10 card-glow text-center">
+    <div class="inline-block px-4 py-1 rounded-full bg-green/10 border border-green/20 mb-6">
+      <span class="text-sm text-green">观测完成</span>
     </div>
-  </div>
 
+    <h2 class="text-4xl font-bold text-gradient mb-8">你的神性途径</h2>
+
+    <div class="mb-10">
+      <div id="path-image" class="w-36 h-36 mx-auto mb-6 rounded-full overflow-hidden border-4 border-purple/30 bg-gray/60">
+        <img src="" id="path-img" class="w-full h-full object-cover">
+      </div>
+      <div class="text-5xl font-bold text-gradient mb-4" id="main-path">——</div>
+      <div class="text-xl text-gray-300" id="path-score">途径契合度：——</div>
+    </div>
+
+    <!-- 你的灵魂三重契合 -->
+    <div class="mb-10 p-6 rounded-2xl bg-purple/10 border border-purple/20 text-left">
+      <h3 class="text-green text-lg mb-4 font-medium">你的灵魂三重契合</h3>
+      <div id="top3-paths" class="space-y-3"></div>
+    </div>
+
+    <!-- 核心描述区域：加宽 + 更舒展 → 一行字更多！ -->
+    <div class="bg-white/5 p-8 rounded-2xl mb-10 text-left max-w-none">
+      <p id="path-desc" class="text-gray-200 text-lg leading-relaxed" style="white-space: pre-line;">正在解析灵魂本源...</p>
+    </div>
+
+    <div class="mb-10 p-6 rounded-2xl bg-purple/10 border border-purple/20">
+      <h3 class="text-green text-lg mb-2 font-medium">你的基础人格印记</h3>
+      <p id="result-mbti" class="text-3xl font-bold text-gradient"></p>
+    </div>
+
+    <button id="restart-btn" class="px-10 py-4 bg-purple hover:bg-purple/90 text-white rounded-2xl text-lg font-medium transition-all btn-glow">
+      重新观测
+    </button>
+  </div>
 </div>
 
 <script>
